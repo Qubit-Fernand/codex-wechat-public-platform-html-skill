@@ -1,0 +1,4 @@
+interface:
+  display_name: "微信公众平台html"
+  short_description: "Generate WeChat public account HTML from a reusable template."
+  default_prompt: "把这篇推送内容按微信公众号模板生成预览 HTML 和后台粘贴片段。"

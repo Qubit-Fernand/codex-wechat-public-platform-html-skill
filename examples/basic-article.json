@@ -1,0 +1,46 @@
+{
+  "title": "示例活动推送",
+  "editor_note": {
+    "label": "编者按",
+    "text": "这是一段用于测试生成器的开头导语。"
+  },
+  "sections": [
+    {
+      "heading": "活动亮点",
+      "blocks": [
+        {
+          "type": "paragraph",
+          "html": "<strong>轻松加入：</strong>不需要提前准备。"
+        },
+        {
+          "type": "paragraph",
+          "html": "<strong>内容丰富：</strong>适合快速验证公众号 HTML 样式。"
+        }
+      ]
+    },
+    {
+      "heading": "现场剪影",
+      "blocks": [
+        {
+          "type": "image",
+          "label": "现场剪影 01｜主视觉横图",
+          "ratio": 1.3333333,
+          "data_w": 1080,
+          "width": "100%"
+        }
+      ]
+    }
+  ],
+  "credits": [
+    "策划：示例团队",
+    "编辑：示例编辑"
+  ],
+  "footer_card": {
+    "text": "惟楚有材，于斯为盛。",
+    "image": {
+      "label": "底部卡片｜示例图片",
+      "ratio": 1.5384615,
+      "width": "76%"
+    }
+  }
+}
