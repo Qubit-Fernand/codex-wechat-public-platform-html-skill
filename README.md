@@ -2,12 +2,13 @@
 
 A Codex skill for generating and extracting WeChat public-account article HTML.
 
-It supports two workflows:
+It supports three workflows:
 
 - Generate a complete browser-preview HTML file and a WeChat-editor pasteable body fragment from a compact JSON article spec.
+- Prepare a temporary-public-image bridge fragment so WeChat can fetch local article images and rehost them after the draft is saved.
 - Extract a compact, previewable article template from a saved `mp.weixin.qq.com` page.
 
-The generated fragment is intended for the WeChat public platform editor or source-editing browser extensions. It keeps styles inline and replaces local images with equal-ratio placeholder rectangles so images can be uploaded through the WeChat editor.
+Generated fragments are intended for the WeChat public platform editor or source-editing browser extensions. Keep styles inline and never paste the complete `*.full.html` document into the editor.
 
 ## Install
 
@@ -30,9 +31,25 @@ python3 scripts/generate_wechat_html.py examples/basic-article.json --out-dir ou
 This writes:
 
 - `*.full.html`: complete browser-preview document.
-- `*.wechat-fragment.html`: body-only HTML for the WeChat editor.
+- `*.wechat-fragment.html`: body-only HTML stripped from the full preview, preserving image tags for local preview.
 
-Only paste the `*.wechat-fragment.html` content into the WeChat editor/source box. Do not paste the full HTML document.
+Only paste body fragments into the WeChat editor/source box. Do not paste the full HTML document.
+
+## Prepare A WeChat Image Bridge
+
+For articles with local images, first keep `*.wechat-fragment.html` as the stripped-body local preview. Then generate a bridge fragment whose local images point to a temporary public HTTPS host:
+
+```bash
+python3 scripts/prepare_wechat_image_bridge.py out/示例活动推送.full.html \
+  --copy-to out/bridge-site/public/images \
+  --base-url 'https://example.com' \
+  --out out/示例活动推送.wechat-bridge-fragment.html \
+  --manifest out/wechat-image-bridge-manifest.md
+```
+
+If the public base URL is not ready yet, use `--base-url '__BRIDGE_BASE_URL__'` and name the output `*.wechat-bridge-fragment.template.html`. After deployment, replace the placeholder with the final HTTPS URL.
+
+After pasting/importing the bridge fragment, save the draft and confirm WeChat rewrote the temporary image URLs to `mmbiz.qpic.cn` or `mmbiz.qlogo.cn` before deleting the temporary host.
 
 ## Extract From WeChat Source Page
 
@@ -47,9 +64,9 @@ python3 scripts/extract_wechat_article_html.py full.html \
 
 The extractor keeps the useful article body, hydrates lazy-loaded image URLs where possible, and forces `#js_content` visible for static local preview.
 
-## Public Package Notes
+## Assets
 
-The original private working skill referenced local template libraries and bundled institution-specific images. This public package keeps the reusable scripts and skill instructions, but does not include private local template archives, logos, or brand assets. Add your own reusable templates under a project folder or under `assets/` as appropriate.
+This package includes reusable template and Peking University / Hubei Association assets used by the skill instructions. Before redistributing derived packages, make sure every added asset has an appropriate license and does not include private information.
 
 ## License
 

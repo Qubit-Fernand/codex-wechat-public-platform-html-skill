@@ -4,6 +4,9 @@ __pycache__/
 out/
 *.full.html
 *.wechat-fragment.html
+*.wechat-fragment.placeholder.html
+*.wechat-bridge-fragment.html
+*.wechat-bridge-fragment.template.html
 full.html
 hyperlink.html
 source.html
