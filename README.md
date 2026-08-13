@@ -35,6 +35,17 @@ This writes:
 
 Only paste body fragments into the WeChat editor/source box. Do not paste the full HTML document.
 
+## Use With The Inshub Chrome Extension
+
+The generated `*.wechat-fragment.html` and `*.wechat-bridge-fragment.html`
+files can be used with the Inshub WeChat editor extension:
+
+[https://aigc.inshub.cn/chrome/](https://aigc.inshub.cn/chrome/)
+
+In the WeChat public platform editor, click the green `</>` button labeled
+`编辑源代码`, replace the source with the generated body-only fragment, then
+click `编辑源代码` again to render the article back in the visual editor.
+
 ## Prepare A WeChat Image Bridge
 
 For articles with local images, first keep `*.wechat-fragment.html` as the stripped-body local preview. Then generate a bridge fragment whose local images point to a temporary public HTTPS host:
