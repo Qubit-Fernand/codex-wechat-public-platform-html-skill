@@ -50,25 +50,23 @@ def divider() -> str:
 def editor_note(label: str, body_html: str) -> str:
     label = label or "编者按"
     chars = "".join(
-        f'<p style="margin: 0px;padding: 0px;box-sizing: border-box;"><b><span>{esc(ch)}</span></b></p>'
+        f'<p style="margin: 0px;padding: 0px;box-sizing: border-box;"><b style="box-sizing: border-box;"><span>{esc(ch)}</span></b></p>'
         for ch in label
     )
     return f"""
-<section style="margin: 15px 0%;box-sizing: border-box;">
-  <table style="border-collapse: collapse;border-spacing: 0;width: 100%;box-sizing: border-box;" cellspacing="0" cellpadding="0">
-    <tbody><tr>
-      <td style="width: 54px;vertical-align: top;text-align: center;box-sizing: border-box;">
+<section style="margin: 15px 0%;box-sizing: border-box;font-size: 0;text-align: left;">
+  <section style="display: inline-block;vertical-align: top;width: 15%;padding: 0px 1px;box-sizing: border-box;font-size: 14px;text-align: center;">
+    <section style="margin: 0px 0% 10px;text-align: center;font-size: 15px;box-sizing: border-box;">
         <section style="display: inline-block;border-left: 1px solid rgb(160, 160, 160);border-right: 1px solid rgb(160, 160, 160);padding: 0px 6px;color: {RED};font-size: 16px;line-height: 1.45;box-sizing: border-box;">
           {chars}
         </section>
-      </td>
-      <td style="vertical-align: top;padding: 0px 0px 0px 10px;box-sizing: border-box;">
-        <section style="color: {MUTED};line-height: 1.8;box-sizing: border-box;">
-          <p style="white-space: normal;margin: 0px;padding: 0px;box-sizing: border-box;">{body_html}</p>
-        </section>
-      </td>
-    </tr></tbody>
-  </table>
+    </section>
+  </section>
+  <section style="display: inline-block;vertical-align: top;width: 85%;padding: 0px 0px 0px 5px;box-sizing: border-box;font-size: 14px;text-align: justify;">
+    <section style="color: {MUTED};line-height: 1.8;box-sizing: border-box;">
+      <p style="white-space: normal;margin: 0px;padding: 0px;box-sizing: border-box;">{body_html}</p>
+    </section>
+  </section>
 </section>""".strip()
 
 
