@@ -2,11 +2,12 @@
 
 A Codex skill for generating and extracting WeChat public-account article HTML.
 
-It supports three workflows:
+It supports these workflows:
 
 - Generate a complete browser-preview HTML file and a WeChat-editor pasteable body fragment from a compact JSON article spec.
 - Prepare a temporary-public-image bridge fragment so WeChat can fetch local article images and rehost them after the draft is saved.
 - Extract a compact, previewable article template from a saved `mp.weixin.qq.com` page.
+- Reuse WeChat material-library image URLs extracted from a user-saved library page, with source-image verification.
 
 Generated fragments are intended for the WeChat public platform editor or source-editing browser extensions. Keep styles inline and never paste the complete `*.full.html` document into the editor.
 
@@ -46,6 +47,24 @@ In the WeChat public platform editor, click the green `</>` button labeled
 `编辑源代码`, replace the source with the generated body-only fragment, then
 click `编辑源代码` again to render the article back in the visual editor.
 
+## Use WeChat Material-Library Images
+
+Upload the intended images to the public account's material library and save that
+page as HTML. Match each card by its filename and inspect its CSS
+`background-image`, not only `<img src>`: the library can store its CDN URLs on
+`i.weui-desktop-img-picker__img-thumb` elements. Decode HTML entities and verify
+the returned image against the original; do not guess another CDN path.
+
+Keep these observed URLs in the article's source spec and in both `src` and
+`data-src` in the generated full/fragment outputs, so regeneration preserves them.
+This backend workflow does not require an AppSecret.
+
+The September 2026 two-QR-code test returned images pixel-identical to the local
+originals, and the user confirmed successful rendering after import. Draft
+save/reopen persistence was not separately confirmed. See the
+[procedure and success screenshot](references/wechat-material-library-qr.md).
+Do not commit saved authenticated backend pages or session parameters.
+
 ## Prepare A WeChat Image Bridge
 
 For articles with local images, first keep `*.wechat-fragment.html` as the stripped-body local preview. Then generate a bridge fragment whose local images point to a temporary public HTTPS host:
@@ -78,6 +97,10 @@ The extractor keeps the useful article body, hydrates lazy-loaded image URLs whe
 ## Assets
 
 This package includes reusable template and Peking University / Hubei Association assets used by the skill instructions. Before redistributing derived packages, make sure every added asset has an appropriate license and does not include private information.
+
+The [red announcement-cover example](assets/cover-examples/hubei-selection-2027/README.md)
+records the approved visual style and remaining crop limitations. Prepare wide
+and square compositions independently before joining them for WeChat cropping.
 
 ## License
 

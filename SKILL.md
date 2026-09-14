@@ -154,6 +154,29 @@ For local interview photos or event photos, do not expect the WeChat public plat
 
 Default preference for local body images: first keep `*.wechat-fragment.html` as the stripped-body local preview with real image tags, then use the verified temporary-public-image bridge when the user has approved making those images briefly public. Keep equal-ratio placeholder output as `*.wechat-fragment.placeholder.html` for privacy-sensitive images, missing public hosting, or when the user asks for manual upload.
 
+Preferred image URL memory:
+
+- If the article or a previous online push already has WeChat-owned image URLs, preserve those first. Prefer `mmbiz.qpic.cn`, `mmbiz.qlogo.cn`, and `mmbiz.qpic.cn/sz_mmbiz_*` URLs in both `src` and `data-src`; do not reupload or replace them unless the user explicitly asks.
+- If body images are local and there is no existing WeChat CDN URL, prefer a no-reencode public image bridge first. In the 2026-07-23 `惟楚有材-周子瑄` test, `https://img.czl.net/api/v1/upload` with multipart field `file=@...` returned `https://i.czl.net/...` JPEG links whose downloaded bytes matched the uploaded JPEGs exactly for images within the guest limits. Verify by downloading each URL and comparing bytes or pixels before handing the file to the user.
+- CZL guest limits can block large files or more than five uploads per hour. For a just-over-limit JPEG, first try lossless JPEG optimization; if still too large, make one high-quality local JPEG bridge copy and record the quality comparison. In the same test, `image-08.jpeg` needed a `quality=94` optimized copy to fit CZL, yielding a 254.0 KB online JPEG and PSNR 46.04 dB vs the original, much better than the compressed EdgeOne copy.
+- Use `img.scdn.io` with the EdgeOne mainland CDN domain only as an import-success fallback when immediate WeChat editor fetchability matters more than fidelity. It worked for WeChat import in the 2026-07-23 test, but reencoded all eight JPEGs heavily: cloud/local size ratios were about 0.22-0.56, and `image-08.jpeg` dropped from 273.1 KB to 66.8 KB with PSNR 31.15 dB.
+- If an online-image bridge succeeds, it is acceptable to overwrite the main `*.wechat-fragment.html` with the online-image version and keep the local-asset version as `*.wechat-fragment.local-assets-backup.html`. This makes the default "去头尾 HTML，可搬运到微信平台" file immediately usable in the WeChat backend.
+- Avoid `chatgpt.site` Sites URLs, overseas temporary hosts such as Uguu, and hosts that silently convert JPEG to small WebP files for WeChat image bridging unless no better option is available; WeChat public-platform import may fail to fetch them or the image quality may visibly drop even when a browser can open them.
+
+### Direct WeChat material-library upload (rendering confirmed)
+
+When the user prefers WeChat's own image hosting or a third-party bridge stalls, offer this route before trying another external host. On 2026-09-14, the user confirmed successful rendering of two registration QR codes after their material-library URLs were embedded into the welcome article. See [the extraction procedure and screenshot](references/wechat-material-library-qr.md). Save/reopen persistence was not separately confirmed. Backend UI upload does not require the user to provide an AppSecret.
+
+1. With authorization for the specific images and account, upload local originals through the public-account material library or the article editor's image-upload control. Use a separate test draft; do not overwrite an existing article or publish it.
+2. Inspect a full-image preview/link or the user-saved material-library HTML first. Image cards may use CSS `background-image` on `i.weui-desktop-img-picker__img-thumb` instead of `img`: match the exact filename in `strong.weui-desktop-img-picker__img-title` within the same `li`, then extract and HTML-unescape the observed URL. Otherwise, insert the images into a test draft and inspect actual `src` / `data-src` through supported browser tools. Never invent a CDN path or assume a preview thumbnail is the original; even an observed `/640` URL must be checked for actual dimensions.
+3. Accept an observed WeChat-owned image URL such as `mmbiz.qpic.cn` or `mmbiz.qlogo.cn` only after matching it to the intended image. A `blob:`, `data:`, local path, editor-page URL, or temporary authenticated preview is not the reusable URL being sought. If no suitable URL is exposed, report that the extraction remains unresolved.
+4. Record each local filename, observed URL, dimensions and verification status in the post's image manifest. Preserve the observed URL and parameters; update the canonical content spec as well as the corresponding image `src` and `data-src` in both full and body-only fragment outputs, retaining the original aspect ratio and display size. Regeneration must retain these URLs rather than restore local paths.
+5. Save and reopen the test draft, confirm that the images still display, then import the regenerated fragment into a separate test draft and repeat the save/reopen check. Only after this round trip report this route as verified. Local preview or an HTTP 200 alone is insufficient. Do not delete source material during testing or promise that the CDN URL is an unrestricted general-purpose image host.
+
+If browser access or file-upload permissions block the workflow, hand the specific upload/inspection step to the user; do not obtain session cookies or bypass tool restrictions. API upload is a separate, permission-dependent option, not required for this UI workflow.
+
+Context: in the 2026-09-14 Qiniu test, two temporary-domain HTTP images returned 200 with valid image types, but carried `Content-Disposition: attachment` and `X-Kodo-Force-Download: true`; HTTPS certificate hostname verification failed. The user reported that importing into WeChat stalled. The cause was not isolated, and this is not evidence that all Qiniu/custom-domain hosting fails. Test artifacts: `/Users/AntiEntropy/Documents/荆楚协会/tests/2026-09-14-qiniu-image-host/`.
+
 ### Default local-image bridge command
 
 After generating or otherwise preparing a browser-preview `*.full.html` with local body images, run:
@@ -189,6 +212,8 @@ After pasting into the WeChat editor, save the draft and inspect the reopened dr
 
 ## WeChat Cover Sizes
 
+For a user-approved red announcement-cover style, inspect `assets/cover-examples/hubei-selection-2027/README.md` and its images. The user liked its restrained red/white/gold visual style and short wording, but reported needing crop adjustments. Treat it as a style reference, not an exact-layout template. For two-ratio covers, prepare the wide and square compositions independently at the dimensions below, verify text-safe margins in each, then concatenate. Do not rely on an image-generation prompt to enforce the panel split or stretch a generated combined sheet into the target dimensions.
+
 For WeChat public-account cover assets, use the two-ratio splice workflow by default when the user mentions the cover/crop workflow:
 
 - Wide cover: `2538x1080` pixels, aspect ratio `2.35:1`.
@@ -207,6 +232,7 @@ For admissions or contact-information posts, keep dense phone tables out of the 
 
 - Never paste a complete HTML document into the WeChat public platform editor or the Chrome helper source box. It will render `<style>body {...}</style>` as article text. Paste only the "去头尾 HTML，可搬运到微信平台" content from `*.wechat-fragment.html`.
 - Keep styles inline. WeChat strips or changes many external/global CSS rules.
+- For footer credits at the end of a WeChat post, keep the label separator as the full-width vertical bar `｜`, and separate multiple names with plain spaces, not Chinese commas, enumeration commas, slashes, or ASCII pipes. Prefer forms like `编辑｜周烁 codex` and `审核｜张三 李四` unless the user explicitly asks to preserve another house style.
 - Do not use `<table>`, `<tr>`, or `<td>` for the editor-note / `编者按` block. In the WeChat public platform editor, a table-based `编者按` block can be treated as a real table and show cell outlines or two-column editing boxes even when the local browser preview looks fine. Use a table-free `inline-block` layout for the vertical label and note text, then paste into WeChat and visually confirm that no table borders or table handles appear.
 - For user-facing guidance, avoid abstract names like "可粘贴片段" when possible. Say: use `*.wechat-fragment.html` for local preview of the stripped body; for production WeChat import with local photos, use `*.wechat-bridge-fragment.html` after the temporary public URLs are ready. If using the manual fallback, import `*.wechat-fragment.placeholder.html`, then delete each placeholder rectangle and use WeChat's own "图片 -> 本地上传" to insert the matching local image.
 - For source extraction, keep both full and compact files when archiving a template: `full.html` for provenance, `hyperlink.html` for the extracted preview/editing base, and `source.html` as the default template entry. Older folders may still have `source.full.html`, `source.raw.html`, `source.hyperlink.html`, and `source.article.html`.
